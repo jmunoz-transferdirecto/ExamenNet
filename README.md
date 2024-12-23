@@ -41,6 +41,15 @@ La base de datos se creará automáticamente mediante Docker
 docker-compose up --build
 ```
 
+##El Backend está en: 
+http://localhost:5038/swagger/index.html
+
+##FrontEnd:
+http://localhost:3000/
+
+##Las ordenes en:
+http://localhost:3000/orders
+
 Si se quiere correr en AWS Cloud Platform:
 
 <img width="343" alt="image" src="https://github.com/user-attachments/assets/88219809-7e43-40ad-9944-7405cb31116c" />
