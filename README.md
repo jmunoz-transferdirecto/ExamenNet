@@ -40,3 +40,7 @@ La base de datos se creará automáticamente mediante Docker
 ```bash
 docker-compose up --build
 ```
+
+Si se quiere correr en AWS Cloud Platform:
+
+<img width="343" alt="image" src="https://github.com/user-attachments/assets/88219809-7e43-40ad-9944-7405cb31116c" />
