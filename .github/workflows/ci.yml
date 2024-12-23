@@ -51,91 +51,91 @@ jobs:
       working-directory: ./src/ClientApp
       run: npm run build
 
-jamc-deploy-aws:
-    name: JAMC AWS Deployment
-    needs: [jamc-backend, jamc-frontend]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - uses: actions/checkout@v2
+  jamc-deploy-aws:
+      name: JAMC AWS Deployment
+      needs: [jamc-backend, jamc-frontend]
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/main'
+      
+      steps:
+      - uses: actions/checkout@v2
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    # Frontend Deployment
-    - name: Deploy Frontend to S3
-      run: |
-        # Crear bucket si no existe
-        aws s3 mb s3://jamc-examennet-bucket --region ${{ secrets.AWS_REGION }} || true
-        
-        # Configurar bucket para web hosting
-        aws s3 website s3://jamc-examennet-bucket/ --index-document index.html --error-document index.html
-        
-        # Configurar política pública para el bucket
-        echo '{
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Sid": "PublicReadGetObject",
-              "Effect": "Allow",
-              "Principal": "*",
-              "Action": "s3:GetObject",
-              "Resource": "arn:aws:s3:::jamc-examennet-bucket/*"
-            }
-          ]
-        }' > bucket-policy.json
-        aws s3api put-bucket-policy --bucket jamc-examennet-bucket --policy file://bucket-policy.json
-        
-        # Subir archivos del frontend
-        aws s3 sync ./src/ClientApp/out s3://jamc-examennet-bucket/
-        
-        # Guardar URL del frontend
-        echo "FRONTEND_URL=http://jamc-examennet-bucket.s3-website-${{ secrets.AWS_REGION }}.amazonaws.com" >> $GITHUB_ENV
+      # Frontend Deployment
+      - name: Deploy Frontend to S3
+        run: |
+          # Crear bucket si no existe
+          aws s3 mb s3://jamc-examennet-bucket --region ${{ secrets.AWS_REGION }} || true
+          
+          # Configurar bucket para web hosting
+          aws s3 website s3://jamc-examennet-bucket/ --index-document index.html --error-document index.html
+          
+          # Configurar política pública para el bucket
+          echo '{
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::jamc-examennet-bucket/*"
+              }
+            ]
+          }' > bucket-policy.json
+          aws s3api put-bucket-policy --bucket jamc-examennet-bucket --policy file://bucket-policy.json
+          
+          # Subir archivos del frontend
+          aws s3 sync ./src/ClientApp/out s3://jamc-examennet-bucket/
+          
+          # Guardar URL del frontend
+          echo "FRONTEND_URL=http://jamc-examennet-bucket.s3-website-${{ secrets.AWS_REGION }}.amazonaws.com" >> $GITHUB_ENV
 
-    # Backend Deployment
-    - name: Deploy Backend to Elastic Beanstalk
-      run: |
-        # Preparar aplicación
-        dotnet publish src/WebApi/WebApi.csproj -c Release -o ./publish
-        cd publish
-        zip -r ../deploy.zip .
-        
-        # Crear aplicación en Elastic Beanstalk si no existe
-        aws elasticbeanstalk create-application --application-name jamc-examennet || true
-        
-        # Crear ambiente si no existe
-        aws elasticbeanstalk create-environment \
-          --application-name jamc-examennet \
-          --environment-name jamc-examennet-env \
-          --solution-stack-name "64bit Amazon Linux 2 v2.5.6 running .NET Core" \
-          --option-settings file://aws-config.json || true
-        
-        # Desplegar nueva versión
-        aws elasticbeanstalk create-application-version \
-          --application-name jamc-examennet \
-          --version-label jamc-${{ github.sha }} \
-          --source-bundle S3Bucket="jamc-examennet-bucket",S3Key="deploy.zip"
-        
-        aws elasticbeanstalk update-environment \
-          --application-name jamc-examennet \
-          --environment-name jamc-examennet-env \
-          --version-label jamc-${{ github.sha }}
-        
-        # Obtener URL del backend
-        BACKEND_URL=$(aws elasticbeanstalk describe-environments \
-          --application-name jamc-examennet \
-          --environment-names jamc-examennet-env \
-          --query "Environments[0].CNAME" \
-          --output text)
-        echo "BACKEND_URL=http://$BACKEND_URL" >> $GITHUB_ENV
+      # Backend Deployment
+      - name: Deploy Backend to Elastic Beanstalk
+        run: |
+          # Preparar aplicación
+          dotnet publish src/WebApi/WebApi.csproj -c Release -o ./publish
+          cd publish
+          zip -r ../deploy.zip .
+          
+          # Crear aplicación en Elastic Beanstalk si no existe
+          aws elasticbeanstalk create-application --application-name jamc-examennet || true
+          
+          # Crear ambiente si no existe
+          aws elasticbeanstalk create-environment \
+            --application-name jamc-examennet \
+            --environment-name jamc-examennet-env \
+            --solution-stack-name "64bit Amazon Linux 2 v2.5.6 running .NET Core" \
+            --option-settings file://aws-config.json || true
+          
+          # Desplegar nueva versión
+          aws elasticbeanstalk create-application-version \
+            --application-name jamc-examennet \
+            --version-label jamc-${{ github.sha }} \
+            --source-bundle S3Bucket="jamc-examennet-bucket",S3Key="deploy.zip"
+          
+          aws elasticbeanstalk update-environment \
+            --application-name jamc-examennet \
+            --environment-name jamc-examennet-env \
+            --version-label jamc-${{ github.sha }}
+          
+          # Obtener URL del backend
+          BACKEND_URL=$(aws elasticbeanstalk describe-environments \
+            --application-name jamc-examennet \
+            --environment-names jamc-examennet-env \
+            --query "Environments[0].CNAME" \
+            --output text)
+          echo "BACKEND_URL=http://$BACKEND_URL" >> $GITHUB_ENV
 
-    # Mostrar URLs
-    - name: Display Application URLs
-      run: |
-        echo "Frontend está desplegado en: ${{ env.FRONTEND_URL }}"
-        echo "Backend está desplegado en: ${{ env.BACKEND_URL }}"
+      # Mostrar URLs
+      - name: Display Application URLs
+        run: |
+          echo "Frontend está desplegado en: ${{ env.FRONTEND_URL }}"
+          echo "Backend está desplegado en: ${{ env.BACKEND_URL }}"
