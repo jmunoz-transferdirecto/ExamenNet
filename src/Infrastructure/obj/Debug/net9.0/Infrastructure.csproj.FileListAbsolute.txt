@@ -1,0 +1,17 @@
+D:\ExamenNet\src\Infrastructure\bin\Debug\net9.0\Infrastructure.deps.json
+D:\ExamenNet\src\Infrastructure\bin\Debug\net9.0\Infrastructure.dll
+D:\ExamenNet\src\Infrastructure\bin\Debug\net9.0\Infrastructure.pdb
+D:\ExamenNet\src\Infrastructure\bin\Debug\net9.0\Application.dll
+D:\ExamenNet\src\Infrastructure\bin\Debug\net9.0\Domain.dll
+D:\ExamenNet\src\Infrastructure\bin\Debug\net9.0\Application.pdb
+D:\ExamenNet\src\Infrastructure\bin\Debug\net9.0\Domain.pdb
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastructure.csproj.AssemblyReference.cache
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastructure.AssemblyInfoInputs.cache
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastructure.AssemblyInfo.cs
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastructure.csproj.CoreCompileInputs.cache
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastr.15EFFBFE.Up2Date
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastructure.dll
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\refint\Infrastructure.dll
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\Infrastructure.pdb
+D:\ExamenNet\src\Infrastructure\obj\Debug\net9.0\ref\Infrastructure.dll
