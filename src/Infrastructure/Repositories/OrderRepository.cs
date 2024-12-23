@@ -17,47 +17,54 @@ namespace Infrastructure.Repositories
 
         public async Task<Order> CreateOrderAsync(Order order)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
-            try
-            {                
-                var product = await _context.Products
-                    .FirstOrDefaultAsync(p => p.Id == order.ProductId);
+            var executionStrategy = _context.Database.CreateExecutionStrategy();
 
-                if (product == null)
-                    throw new KeyNotFoundException("Product not found");
+            return await executionStrategy.ExecuteAsync(async () =>
+            {
+                await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
 
-                if (product.Stock < order.Quantity)
-                    throw new InvalidOperationException("Insufficient stock");
-
-                product.Stock -= order.Quantity;
-                order.Total = product.Price * order.Quantity;
-                order.Date = DateTime.UtcNow;
-
-                _context.Orders.Add(order);
-
-                try 
+                try
                 {
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                    var product = await _context.Products
+                        .FirstOrDefaultAsync(p => p.Id == order.ProductId);
 
-                    await _context.Entry(order)
-                        .Reference(o => o.Product)
-                        .LoadAsync();
+                    if (product == null)
+                        throw new KeyNotFoundException("Product not found");
 
-                    return order;
+                    if (product.Stock < order.Quantity)
+                        throw new InvalidOperationException("Insufficient stock");
+
+                    product.Stock -= order.Quantity;
+                    order.Total = product.Price * order.Quantity;
+                    order.Date = DateTime.UtcNow;
+
+                    _context.Orders.Add(order);
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+
+                        await _context.Entry(order)
+                            .Reference(o => o.Product)
+                            .LoadAsync();
+
+                        return order;
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        await transaction.RollbackAsync();
+                        throw new InvalidOperationException("El producto fue modificado por otro usuario. Por favor, inténtelo nuevamente.");
+                    }
                 }
-                catch (DbUpdateConcurrencyException)
+                catch
                 {
                     await transaction.RollbackAsync();
-                    throw new InvalidOperationException("El producto fue modificado por otro usuario. Por favor, inténtelo nuevamente.");
+                    throw;
                 }
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            });
         }
+
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {

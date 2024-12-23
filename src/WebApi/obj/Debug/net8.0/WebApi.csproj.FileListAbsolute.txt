@@ -239,3 +239,4 @@ D:/ExamenNet/src/WebApi/obj/Debug/net8.0/ref/WebApi.dll
 /Users/jmunoz/Documents/GIT/Paynau/Examen/ExamenNet/src/WebApi/obj/Debug/net8.0/WebApi.pdb
 /Users/jmunoz/Documents/GIT/Paynau/Examen/ExamenNet/src/WebApi/obj/Debug/net8.0/WebApi.genruntimeconfig.cache
 /Users/jmunoz/Documents/GIT/Paynau/Examen/ExamenNet/src/WebApi/obj/Debug/net8.0/ref/WebApi.dll
+/Users/jmunoz/Documents/GIT/Paynau/Examen/ExamenNet/src/WebApi/obj/Debug/net8.0/WebApi.sourcelink.json

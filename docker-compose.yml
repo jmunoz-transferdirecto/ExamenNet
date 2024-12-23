@@ -1,18 +1,15 @@
-version: '3.8'
-
 services:
   api:
     build:
       context: .
       dockerfile: src/WebApi/Dockerfile
     ports:
-      - "5038:80"
+      - "5038:5038"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=ProductsDB;User=root;Password=MyPassword123!;
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=ProductsDB;User=root;Password=123456;
     depends_on:
       - db
-
   frontend:
     build:
       context: ./src/ClientApp
@@ -23,16 +20,15 @@ services:
       - NEXT_PUBLIC_API_URL=http://api
     depends_on:
       - api
-
   db:
     image: mysql:8.0
+    container_name: database-testing
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: MyPassword123!
+      MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: ProductsDB
     volumes:
-      - mysql_data:/var/lib/mysql
-
+      - db_data:/var/lib/mysql
 volumes:
-  mysql_data:
+  db_data: {}

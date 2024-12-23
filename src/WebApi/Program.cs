@@ -46,6 +46,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Database Configuration
+/*
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
@@ -53,6 +54,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 0)),
         b => b.MigrationsAssembly("WebApi") 
     ));
+*/
+
+//new
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), new MySqlServerVersion(new Version(8, 0, 23)),
+                mySqlOptions =>
+                {
+                    mySqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null
+                    );
+                }));
+//end new
 
 // Dependency Injection
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -81,9 +96,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // CORS Configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFront", policy =>
+    options.AddPolicy("AllowFrontendLocalhost", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:3000","http://localhost:5038")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .WithExposedHeaders("X-Auth-Token")
@@ -104,19 +119,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowFront");
+app.UseCors("AllowFrontendLocalhost");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
 // Aplicar migraciones automáticamente en desarrollo
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate();
-    }
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
 }
 
 app.Run();

@@ -34,21 +34,9 @@ git clone https://github.com/jmunoz-transferdirecto/ExamenNet.git
 ## Configuración del Proyecto
 
 ### Base de Datos
-1. La base de datos se creará automáticamente mediante Docker
-
-### Backend (.NET Core API)
-1. Restaurar dependencias:
-```bash
-dotnet restore
-
-o en su defecto con docker:
+La base de datos se creará automáticamente mediante Docker
 
 1. Para ejecutar el proyecto debera compilar e iniciar los contenedores de docker con el siguiente comando:
 ```bash
 docker-compose up --build
 ```
-Si los contenedores ya fueron compilados previamente bastará con ejecutar el siguiente comando:
-```bash
-docker-compose up
-```
-
