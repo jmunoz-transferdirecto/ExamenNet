@@ -1,0 +1,59 @@
+name: JAMC-Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  jamc-backend:   
+    name: JAMC Backend Build & Test   
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: JAMC - Restore Dependencies   
+      run: dotnet restore
+      
+    - name: JAMC - Build    
+      run: dotnet build --no-restore
+      
+    - name: JAMC - Run Tests   
+      run: dotnet test --no-build --verbosity normal
+
+  jamc-frontend:   
+    name: JAMC Frontend Build  
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        
+    - name: JAMC - Install NPM Packages  
+      working-directory: ./src/ClientApp
+      run: npm install
+      
+    - name: JAMC - Build Frontend   
+      working-directory: ./src/ClientApp
+      run: npm run build
+
+  jamc-deploy:   
+    name: JAMC Deployment    
+    needs: [jamc-backend, jamc-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: JAMC - Deploy Step    
+      run: echo "Add your deployment steps here"

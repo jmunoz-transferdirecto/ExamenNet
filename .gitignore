@@ -8,6 +8,16 @@ obj/
 *.dll
 *.exe
 
+# Node
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.log
+
 # Environment
 .env
-.env.local
+.env.localnuevodociembre*
+nuevodociembre*
+.DS_Store
